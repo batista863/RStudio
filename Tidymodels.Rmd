@@ -71,7 +71,7 @@ test <- testing(split)
 
 ```
 
-## Using recipe package
+## Using recipe package for data processing
 
 
 ```{r}
@@ -84,17 +84,40 @@ recipe1 <- recipe(Balance ~ ., data = training) %>%
   
   step_dummy(all_nominal(), -all_outcomes()) # defining all string variables as dummies
 
-summary(receita) # lista as variaveis e seus respectivos papeis (roles)
+summary(recipe1) # display variable roles
 
-(receita_prep <- prep(receita)) # prepara a receita definida acima
+(recipe1_prep <- prep(recipe1)) # preparing the recipe
 
-treinamento_proc <- bake(receita_prep, new_data = NULL) # obtem os dados de treinamento processados
+training_proc <- bake(recipe1_prep, new_data = NULL) # processed training dataframe
 
-teste_proc <- bake(receita_prep, new_data = teste) # obtem os dados de teste processados
-
+test_proc <- bake(recipe1_prep, new_data = test) # processed test dataframe
 
 
 ```
+
+## Going for the models using parsnip
+
+Now that we have our training and test dataframe, we will create linear and random forest models
+
+```{r}
+
+lm <- linear_reg() %>% set_engine("lm") # defining linear regression as engine
+
+
+lm_fit <- linear_reg() %>% set_engine("lm") %>%  fit(Balance ~ ., training_proc)
+
+tidy(lm_fit)
+
+
+fitted_lm <- lm_fit %>% 
+  predict(new_data = teste_proc) %>% # realiza predicao para os dados de teste
+  mutate(observado = teste_proc$Balance, # cria uma coluna com o valor observado de Balance
+         modelo = "lm")
+
+```
+
+
+
 
 
 ## Including Plots
