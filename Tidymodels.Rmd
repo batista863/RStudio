@@ -1,0 +1,108 @@
+---
+title: "Tidymodels"
+output: html_document
+---
+
+## Intro
+
+I will use 'Credit', a small dataframe from ISLR data package, since the main goal is to explore the predict models only, not data wrangling.
+
+Our goal is to predict the variable "Balance". I will use the mean squared error(MSE) as quality measure for our models.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+```{r echo = T, results = 'hide'}
+
+library(tidymodels)
+library(ISLR)
+library(tidyverse)
+library(vip)
+library(doParallel)
+library(skimr)
+
+```
+
+
+## Gathering data
+
+```{r}
+
+df <- Credit %>% as_tibble()
+
+```
+
+
+## Exploring data
+
+```{r}
+
+skim(df)
+
+```
+
+Overall, this data frame is very clean and straightforward for modeling, but the column "ID" shall be removed, since it have no relevant predictive information.
+
+#Removing ID
+
+```{r}
+
+df = subset(df, select = -c(ID))
+
+```
+
+#Rsample
+
+Using Rsample package to set train/test data
+
+```{r}
+
+set.seed(150)
+
+split <- initial_split(df, prop = 0.8) #80% train/20% test
+
+training <- training(split) 
+test <- testing(split) 
+
+
+```
+
+## Using recipe package
+
+
+```{r}
+
+recipe1 <- recipe(Balance ~ ., data = training) %>% 
+
+  step_normalize(all_numeric(), -all_outcomes()) %>% # normalizing numeric variables except 'Balance'
+  
+  step_other(Ethnicity, threshold = .30, other = "Other") %>%  # creating 'Other' category for ethinicy
+  
+  step_dummy(all_nominal(), -all_outcomes()) # defining all string variables as dummies
+
+summary(receita) # lista as variaveis e seus respectivos papeis (roles)
+
+(receita_prep <- prep(receita)) # prepara a receita definida acima
+
+treinamento_proc <- bake(receita_prep, new_data = NULL) # obtem os dados de treinamento processados
+
+teste_proc <- bake(receita_prep, new_data = teste) # obtem os dados de teste processados
+
+
+
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
