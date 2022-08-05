@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Packages
 
-```{r echo = T, results = 'hide'}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 
 library(tidymodels)
 library(ISLR)
@@ -183,7 +183,7 @@ fitted %>%
 ```{r}
 
 rf2 <- rand_forest(mtry = tune(), # tuning mtry 
-                   trees = tune(),  #tuning the number fo trees
+                   trees = tune(),  #tuning the number of trees
                    min_n = tune()) %>% #tuning the minimal number of points in a node
   set_engine("ranger") %>% 
   set_mode("regression") 
@@ -195,7 +195,7 @@ cv_split <- vfold_cv(training, v = 10)
 
 registerDoParallel() # parallel the processing to make it faster
 
-# para tunar os parametros
+# assembling the tunning grid
 rf_grid <- tune_grid(rf2, 
                      recipe1, # the recipe in each fold
                      resamples = cv_split, # setting folds
@@ -208,32 +208,44 @@ rf_grid %>%
   collect_metrics() 
 
 rf_grid %>% 
-  select_best("rmse") # seleciona a melhor combinacao de hiperparametros
+  select_best("rmse") # select the best combination for the forest hyperparameters
 
 best <- rf_grid %>% 
-  select_best("rmse") # salva o melhor modelo na variavel best
+  select_best("rmse") 
 
 
-# finaliza modelo
-rf_fit2 <- finalize_model(rf2, parameters = best) %>% # informa os valores de hiperparametros a serem considerados
-  fit(Balance ~ ., training_proc) # executa o modelo com os valores de hiperparametros definidos acima
+```
 
-fitted_rf2 <- rf_fit2 %>% # faz previsao para os dados de teste
+## Fiting the random forest with the best hyperparameters 
+
+We will use the finalize_model function that atuomatically uses the hyperparameters setup set as "best" to update our forest
+
+
+```{r}
+
+rf_fit2 <- finalize_model(rf2, parameters = best) %>% #setting "best" as our hyperparameters optimal combination
+  fit(Balance ~ ., training_proc) 
+
+fitted_rf2 <- rf_fit2 %>% 
   predict(new_data = test_proc) %>% 
   mutate(observed = test_proc$Balance, 
          model = "random forest - tune")
 
+```
+
+## models results
+
+```{r}
+
+fitted <- fitted %>% # empilha as previsoes da floresta tunada
+  bind_rows(fitted_rf2)
+
+fitted %>% # obtem as metricas de todos os modelos ajustados
+  group_by(model) %>% 
+  metrics(truth = observed, estimate = .pred) 
 
 ```
 
-## acbders
+## Conclusion
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+As we can see, taking the root of the mean squared error(rmse) as parameter, the linear regression model performed best despite the hyperparameters tuning on the random forest.
