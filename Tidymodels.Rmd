@@ -216,18 +216,17 @@ best <- rf_grid %>%
 
 # finaliza modelo
 rf_fit2 <- finalize_model(rf2, parameters = best) %>% # informa os valores de hiperparametros a serem considerados
-  fit(Balance ~ ., treinamento_proc) # executa o modelo com os valores de hiperparametros definidos acima
+  fit(Balance ~ ., training_proc) # executa o modelo com os valores de hiperparametros definidos acima
 
 fitted_rf2 <- rf_fit2 %>% # faz previsao para os dados de teste
-  predict(new_data = teste_proc) %>% 
-  mutate(observado = teste_proc$Balance, 
-         modelo = "random forest - tune")
-
+  predict(new_data = test_proc) %>% 
+  mutate(observed = test_proc$Balance, 
+         model = "random forest - tune")
 
 
 ```
 
-
+## acbders
 
 ## Including Plots
 
