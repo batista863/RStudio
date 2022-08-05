@@ -248,4 +248,4 @@ fitted %>% # obtem as metricas de todos os modelos ajustados
 
 ## Conclusion
 
-As we can see, taking the root of the mean squared error(rmse) as parameter, the linear regression model performed best despite the hyperparameters tuning on the random forest.
+As we can see, taking the root of the mean squared error(rmse) as parameter, the linear regression model performed best despite the hyperparameters tuning on the random forest. abcde
