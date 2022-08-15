@@ -1,11 +1,11 @@
 ---
 title: "Tidymodels"
-output: html_document
+output: github_document
 ---
 
 ## Intro
 
-I will use 'Credit', a small dataframe from ISLR data package, since the main goal is to explore the predict models only, not data wrangling.
+We will use 'Credit', a small dataframe from ISLR data package, since the main goal is to explore the predict models only, not data wrangling.
 
 Our goal is to predict the variable "Balance". I will use the mean squared error(MSE) as quality measure for our models.
 
